@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>おこづかい練習</title>
+<style>
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    background: #fff8e6;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+  h1 { color: #ff7a00; }
+  .classroom {
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+    background: #f0f9ff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .mode-selector {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .mode-btn {
+    padding: 10px 15px;
+    border-radius: 30px;
+    border: 2px solid #ccc;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  .mode-btn.active {
+    background: #ff7a00;
+    color: white;
+    border-color: #ff7a00;
+  }
+  
+  /* おさいふのエリア */
+  .wallet-area {
+    display: flex;
+    justify-content: center;
+    min-height: 300px;
+    margin-bottom: 20px;
+  }
+  .wallet {
+    width: 380px; /* 5枚並ぶサイズに固定 */
+    background: #ffccaa;
+    border-radius: 20px;
+    border: 6px solid #cc8855;
+    padding: 20px;
+    position: relative;
+    display: grid;
+    /* 5列に固定 */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-content: start;
+    overflow: hidden;
+  }
+
+  /* 落ちてくるアニメーション */
+  @keyframes dropIn {
+    0% { transform: translateY(-200px); opacity: 0; }
+    60% { transform: translateY(10px); }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    animation: dropIn 0.5s ease-out forwards;
+    z-index: 2;
+  }
+
+  .coin-10 { width: 60px; height: 60px; border-radius: 50%; background: #cd7f32; color: white; border: 3px solid #b87333; font-size: 14px; }
+  .coin-100 { width: 60px; height: 60px; border-radius: 50%; background: #e5e4e2; color: #444; border: 3px solid #ccc; font-size: 14px; }
+  .bill-1000 { 
+    width: 60px; height: 40px; 
+    background: #d1e8ff; color: #2e5a88; border: 2px solid #5a9bd5; border-radius: 4px; font-size: 12px;
+  }
+
+  .result-text { font-size: 32px; height: 45px; margin: 15px 0; color: #e63946; font-weight: bold; }
+  
+  .main-btn {
+    font-size: 18px; padding: 10px 20px; margin: 5px;
+    border-radius: 10px; border: none; cursor: pointer;
+    background: #ffb347;
+    box-shadow: 0 3px #cc8800;
+  }
+  .main-btn:active { transform: translateY(2px); box-shadow: 0 1px #cc8800; }
+</style>
+</head>
+<body>
+
+<h1>おこづかいの れんしゅう</h1>
+
+<div class="classroom">
+  <div class="mode-selector">
+    <button id="m10" class="mode-btn active" onclick="changeMode(10)">10円玉</button>
+    <button id="m100" class="mode-btn" onclick="changeMode(100)">100円玉</button>
+    <button id="m1000" class="mode-btn" onclick="changeMode(1000)">1000円札</button>
+  </div>
+
+  <div class="wallet-area">
+    <div id="wallet" class="wallet"></div>
+  </div>
+
+  <div id="result" class="result-text"></div>
+
+  <div>
+    <button class="main-btn" onclick="showAnswer()">せいかいをみる</button>
+    <button class="main-btn" style="background:#4caf50; color:white;" onclick="nextQuestion()">つぎへ</button>
+  </div>
+</div>
+
+<script>
+let mode = 10;
+let count = 0;
+let timer = null;
+
+function changeMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('m' + m).classList.add('active');
+  nextQuestion();
+}
+
+function nextQuestion() {
+  const wallet = document.getElementById('wallet');
+  const result = document.getElementById('result');
+  wallet.innerHTML = '';
+  result.textContent = '';
+  
+  if (timer) clearInterval(timer);
+  
+  // 1〜10枚までランダム
+  count = Math.floor(Math.random() * 10) + 1; 
+  let i = 0;
+
+  timer = setInterval(() => {
+    if (i >= count) {
+      clearInterval(timer);
+      return;
+    }
+    const el = document.createElement('div');
+    if (mode === 1000) {
+      el.className = 'item bill-1000';
+      el.textContent = '1000';
+    } else {
+      el.className = `item coin-${mode}`;
+      el.textContent = mode;
+    }
+    wallet.appendChild(el);
+    i++;
+  }, 400); // 落ちてくる間隔
+}
+
+function showAnswer() {
+  document.getElementById('result').textContent = `せいかい：${(count * mode).toLocaleString()}円`;
+}
+
+nextQuestion();
+</script>
+
+</body>
+</html>
